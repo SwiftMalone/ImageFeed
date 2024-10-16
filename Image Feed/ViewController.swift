@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  ImageFeed
-//
-//  Created by Роман Абеленцев on 08/10/2024.
-//
-
 import UIKit
 
 class ViewController: UIViewController {
@@ -13,7 +6,4 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
-
-
 }
-
