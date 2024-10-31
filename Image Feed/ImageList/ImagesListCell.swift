@@ -2,7 +2,7 @@ import UIKit
 
 final class ImagesListCell: UITableViewCell {
     // MARK: - Static properties
-
+    
     static let reuseIdentifier = "ImagesListCell"
     
     // MARK: - IBOutlet properties
