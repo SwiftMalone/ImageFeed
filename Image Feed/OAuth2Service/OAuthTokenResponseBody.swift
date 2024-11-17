@@ -1,5 +1,7 @@
-import Foundation
+
+import UIKit
 
 struct OAuthTokenResponseBody: Decodable {
-    let accessToken: String
+    let accessToken, tokenType, scope: String
+    let createdAt: Int
 }
