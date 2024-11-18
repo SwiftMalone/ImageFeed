@@ -1,7 +1,6 @@
 import Foundation
 
-
-enum NetworkError: Error {  // 1
+enum NetworkError: Error { 
     case httpStatusCode(Int)
     case urlRequestError(Error)
     case urlSessionError
@@ -10,28 +9,56 @@ enum NetworkError: Error {  // 1
 extension URLSession {
     func data(
         for request: URLRequest,
-        completion: @escaping (Result<Data, Error>) -> Void
+        completion: @escaping (Result<Data,Error>) -> Void
     ) -> URLSessionTask {
-        let fulfillCompletionOnTheMainThread: (Result<Data, Error>) -> Void = { result in  // 2
+        let fullfillCompletionOnTheMainThread: (Result<Data, Error>) -> Void = { result in
             DispatchQueue.main.async {
                 completion(result)
             }
         }
-        
         let task = dataTask(with: request, completionHandler: { data, response, error in
             if let data = data, let response = response, let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                if 200 ..< 300 ~= statusCode {
-                    fulfillCompletionOnTheMainThread(.success(data)) // 3
+                if 200..<300 ~= statusCode {
+                    fullfillCompletionOnTheMainThread(.success(data))
                 } else {
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode))) // 4
+                    print("Network error with code: \(statusCode)")
+                    fullfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode)))
                 }
-            } else if let error = error {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error))) // 5
-            } else {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError)) // 6
+            } else if let error {
+                print("Network error: \(error)")
+                fullfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error)))
+            } else if error != nil {
+                print("Network error: urlSessionError")
+                fullfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
             }
         })
+        return task
+    }
+}
+
+extension URLSession {
+    func objectTask<T: Decodable> (
+        for request: URLRequest,
+        completion: @escaping (Result<T,Error>) -> Void
+    ) -> URLSessionTask {
         
+        let task = data(for: request) { (result: Result<Data, Error>) in
+            switch result {
+            case .success(let data):
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let decodedObject = try decoder.decode(T.self, from: data)
+                    completion(.success(decodedObject))
+                } catch {
+                    print("Decoding error: \(error.localizedDescription), Data: \(String(data: data, encoding: .utf8) ?? "No data")")
+                    completion(.failure(error))
+                }
+            case .failure(let error):
+                print("Network error: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
+        }
         return task
     }
 }

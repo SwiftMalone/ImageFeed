@@ -1,9 +1,12 @@
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     private let profilePhotoView: UIImageView = {
         let image = UIImage(named: "avatar")
         let view = UIImageView(image: image)
+        view.layer.cornerRadius = 34
+        view.clipsToBounds = true
         return view
     }()
     private let logOutButton: UIButton = {
@@ -39,6 +42,35 @@ final class ProfileViewController: UIViewController {
         label.numberOfLines = 0
         return label
     }()
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addViewsToSuperView()
+        setupConstraints()
+        updateProfileDetails()
+        self.view.backgroundColor = UIColor(named: "YPBlack")
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        profilePhotoView.kf.indicatorType = .activity
+        profilePhotoView.kf.setImage(with: url)
+    }
+    
     
     private func addViewsToSuperView() {
         let viewsArray: [UIView] = [logOutButton, profilePhotoView, userNameLabel, tagLabel, statusLabel]
@@ -46,6 +78,11 @@ final class ProfileViewController: UIViewController {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
+    }
+    private func updateProfileDetails() {
+        userNameLabel.text = ProfileService.shared.profile?.name
+        tagLabel.text = "@\(ProfileService.shared.profile?.name ?? "")"
+        statusLabel.text = ProfileService.shared.profile?.bio
     }
     
     private func setUserPickAndExitButtonConstraints() {
@@ -79,14 +116,7 @@ final class ProfileViewController: UIViewController {
         setUserPickAndExitButtonConstraints()
         setupLabelsConstraints()
     }
-    
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        addViewsToSuperView()
-        setupConstraints()
-    }
-    
+
     @objc
     private func didTapLogoutButton() {
         for view in view.subviews {

@@ -1,23 +1,30 @@
 import UIKit
+import SwiftKeychainWrapper
 
 final class OAuth2TokenStorage {
-    private let storage = UserDefaults.standard
     
-    private(set) var token: String? {
+    private let storage = KeychainWrapper.standard
+    private let userDefaults = UserDefaults.standard
+    private let tokenKey = "bearerToken"
+    private let appFirstRunKey = "appFirstRun"
+    
+    init() {
+        if !userDefaults.bool(forKey: appFirstRunKey) {
+            storage.removeObject(forKey: tokenKey)
+            userDefaults.set(true, forKey: appFirstRunKey)
+        }
+    }
+    
+    var bearerToken: String? {
         get {
-            storage.string(forKey: "accessKey")
+            storage.string(forKey: tokenKey)
         }
         set {
-            storage.set(newValue, forKey: "accessKey")
+            if let token = newValue {
+                storage.set(token, forKey: tokenKey)
+            } else {
+                storage.removeObject(forKey: tokenKey)
+            }
         }
     }
-    
-    func store(token: String) {
-        self.token = token
-    }
-    
-    func removeToken() {
-        token = nil
-    }
 }
-
