@@ -7,6 +7,13 @@ final class ImagesListViewController: UIViewController {
     private let imagesListService = ImagesListService.shared
     private var photos: [Photo] = []
     private var photoImageServiceObserver: NSObjectProtocol?
+    private let inputFormatter = ISO8601DateFormatter()
+    private let outputFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMMM yyyy"
+        formatter.locale = Locale(identifier: "ru_RU")
+        return formatter
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +35,11 @@ final class ImagesListViewController: UIViewController {
         if let imageUrl = URL(string: photo.largeImageURL), let createdAt = photo.createdAt {
             cell.cellImage.kf.indicatorType = .activity
             cell.cellImage.kf.setImage(with: imageUrl, placeholder: UIImage(named: "Stub"))
-            cell.dateLabel.text = convertDateString(createdAt)
+            if let date = inputFormatter.date(from: createdAt) {
+                cell.dateLabel.text = outputFormatter.string(from: date)
+            } else {
+                cell.dateLabel.text = nil
+            }
         }
         
         let likeImage = photo.isLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
@@ -49,17 +60,6 @@ final class ImagesListViewController: UIViewController {
         } else {
             super.prepare(for: segue, sender: sender)
         }
-    }
-    private func convertDateString(_ inputDate: String) -> String? {
-        let inputFormatter = ISO8601DateFormatter()
-        let outputFormatter = DateFormatter()
-        outputFormatter.dateFormat = "dd MMMM yyyy"
-        outputFormatter.locale = Locale(identifier: "ru_RU")
-        
-        if let date = inputFormatter.date(from: inputDate) {
-            return outputFormatter.string(from: date)
-        }
-        return nil
     }
     
     private func updateTableViewAnimated() {
@@ -90,7 +90,7 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photos.count
+        photos.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

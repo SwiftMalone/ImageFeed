@@ -9,6 +9,7 @@ struct Photo: Decodable {
     let largeImageURL: String
     let isLiked: Bool
 }
+
 extension Photo {
     init(from photoResult: PhotoResult) {
         self.id = photoResult.id

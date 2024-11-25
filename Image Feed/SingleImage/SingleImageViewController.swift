@@ -21,14 +21,14 @@ final class SingleImageViewController: UIViewController {
         let hScale = visibleRectSize.width / imageSize.width
         let vScale = visibleRectSize.height / imageSize.height
         let scale = min(hScale, vScale)
-           scrollView.minimumZoomScale = scale
-           scrollView.maximumZoomScale = 3
-           let initialZoomScale = scrollView.maximumZoomScale
-           scrollView.setZoomScale(initialZoomScale, animated: false)
+        scrollView.minimumZoomScale = scale
+        scrollView.maximumZoomScale = 3
+        let initialZoomScale = scrollView.maximumZoomScale
+        scrollView.setZoomScale(initialZoomScale, animated: false)
         let newContentSize = scrollView.contentSize
         let xOffset = max((newContentSize.width - visibleRectSize.width) / 2, 0)
-              let yOffset = max((newContentSize.height - visibleRectSize.height) / 2, 0)
-              scrollView.contentOffset = CGPoint(x: xOffset, y: yOffset)
+        let yOffset = max((newContentSize.height - visibleRectSize.height) / 2, 0)
+        scrollView.contentOffset = CGPoint(x: xOffset, y: yOffset)
     }
     
     @IBAction func didTapShareButton(_ sender: UIButton) {
@@ -40,28 +40,26 @@ final class SingleImageViewController: UIViewController {
         present(share, animated: true, completion: nil)
     }
     private func loadImage() {
-          guard  let fullImageURL = URL(string: photo?.largeImageURL ?? "") else {
-              assertionFailure("Invalid image URL")
-              return
-          }
-
-          UIBlockingProgressHUD.show()
-
-          imageView.kf.setImage(with: fullImageURL) { [weak self] result in
-              UIBlockingProgressHUD.dismiss()
-              guard let self else { return }
-
-              switch result {
-              case .success(let imageResult):
-                  self.imageView.image = imageResult.image
-                  self.rescaleAndCenterImageInScrollView(image: imageResult.image)
-              case .failure(let error):
-                  print("Error loading image: \(error.localizedDescription)")
-              }
-          }
-      }
-
-
+        guard  let fullImageURL = URL(string: photo?.largeImageURL ?? "") else {
+            assertionFailure("Invalid image URL")
+            return
+        }
+        
+        UIBlockingProgressHUD.show()
+        
+        imageView.kf.setImage(with: fullImageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self else { return }
+            
+            switch result {
+            case .success(let imageResult):
+                self.imageView.image = imageResult.image
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+            case .failure(let error):
+                print("Error loading image: \(error.localizedDescription)")
+            }
+        }
+    }
     
     @IBAction private func didTapBackButton() {
         dismiss(animated: true, completion: nil)

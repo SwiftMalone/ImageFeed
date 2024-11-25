@@ -116,17 +116,17 @@ final class ProfileViewController: UIViewController {
         setUserPickAndExitButtonConstraints()
         setupLabelsConstraints()
     }
-
+    
     @objc
     private func didTapLogoutButton() {
         let alert = UIAlertController(title: "Вы точно хотите выйти из аккаунта", message: "", preferredStyle: .alert)
-             let okButton = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
-                 guard self != nil else { return }
-                 ProfileLogoutService.shared.logout()
-             }
-             let cancelButton = UIAlertAction(title: "Нет", style: .default)
-             alert.addAction(okButton)
-             alert.addAction(cancelButton)
-             self.present(alert, animated: true)
+        let okButton = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard self != nil else { return }
+            ProfileLogoutService.shared.logout()
+        }
+        let cancelButton = UIAlertAction(title: "Нет", style: .default)
+        alert.addAction(okButton)
+        alert.addAction(cancelButton)
+        self.present(alert, animated: true)
     }
 }
