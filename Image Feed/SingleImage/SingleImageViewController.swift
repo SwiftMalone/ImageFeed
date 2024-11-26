@@ -1,12 +1,12 @@
 import UIKit
 import Kingfisher
 
-final class SingleImageViewController: UIViewController {
-    var photo: Photo?
+public final class SingleImageViewController: UIViewController {
+    public var photo: Photo?
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var scrollView: UIScrollView!
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
@@ -67,7 +67,7 @@ final class SingleImageViewController: UIViewController {
 }
 
 extension SingleImageViewController: UIScrollViewDelegate {
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
         
     }

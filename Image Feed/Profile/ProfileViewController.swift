@@ -1,7 +1,8 @@
 import UIKit
 import Kingfisher
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController, ProfileViewProtocol {
+    private var presenter: ProfileViewPresenterProtocol?
     private let profilePhotoView: UIImageView = {
         let image = UIImage(named: "avatar")
         let view = UIImageView(image: image)
@@ -9,6 +10,7 @@ final class ProfileViewController: UIViewController {
         view.clipsToBounds = true
         return view
     }()
+    
     private let logOutButton: UIButton = {
         let button = UIButton.systemButton(
             with: UIImage(systemName: "ipad.and.arrow.forward")!,
@@ -18,6 +20,7 @@ final class ProfileViewController: UIViewController {
         button.tintColor = UIColor(named: "YPRed")
         return button
     }()
+    
     private let userNameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 23, weight: .bold)
@@ -26,6 +29,7 @@ final class ProfileViewController: UIViewController {
         label.numberOfLines = 0
         return label
     }()
+    
     private let tagLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
@@ -34,6 +38,7 @@ final class ProfileViewController: UIViewController {
         label.numberOfLines = 0
         return label
     }()
+    
     private let statusLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
@@ -42,13 +47,19 @@ final class ProfileViewController: UIViewController {
         label.numberOfLines = 0
         return label
     }()
+    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let profileService = ProfileService.shared
+        let profileImageService = ProfileImageService.shared
+        presenter = ProfileViewPresenter(view: self, profileService: profileService, profileImageService: profileImageService)
+        presenter?.viewDidLoad()
         addViewsToSuperView()
         setupConstraints()
-        updateProfileDetails()
+        
+        
         self.view.backgroundColor = UIColor(named: "YPBlack")
         profileImageServiceObserver = NotificationCenter.default
             .addObserver(
@@ -56,17 +67,12 @@ final class ProfileViewController: UIViewController {
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
-                guard let self else { return }
-                self.updateAvatar()
+                guard self != nil else { return }
             }
-        updateAvatar()
     }
     
-    private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImageURL)
-        else { return }
+    func updateAvatar(with url: URL?) {
+        guard let url else { return }
         profilePhotoView.kf.indicatorType = .activity
         profilePhotoView.kf.setImage(with: url)
     }
@@ -79,10 +85,11 @@ final class ProfileViewController: UIViewController {
             view.addSubview($0)
         }
     }
-    private func updateProfileDetails() {
-        userNameLabel.text = ProfileService.shared.profile?.name
-        tagLabel.text = "@\(ProfileService.shared.profile?.name ?? "")"
-        statusLabel.text = ProfileService.shared.profile?.bio
+    
+    func updateProfileDetails(name: String?, login: String?, bio: String?) {
+        userNameLabel.text = name
+        tagLabel.text = login
+        statusLabel.text = bio
     }
     
     private func setUserPickAndExitButtonConstraints() {
@@ -116,17 +123,18 @@ final class ProfileViewController: UIViewController {
         setUserPickAndExitButtonConstraints()
         setupLabelsConstraints()
     }
-    
-    @objc
-    private func didTapLogoutButton() {
+    func showLogoutAlert() {
         let alert = UIAlertController(title: "Вы точно хотите выйти из аккаунта", message: "", preferredStyle: .alert)
-        let okButton = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
-            guard self != nil else { return }
+        let okButton = UIAlertAction(title: "Да", style: .default) { _ in
             ProfileLogoutService.shared.logout()
         }
         let cancelButton = UIAlertAction(title: "Нет", style: .default)
         alert.addAction(okButton)
         alert.addAction(cancelButton)
         self.present(alert, animated: true)
+    }
+    
+    @objc private func didTapLogoutButton() {
+        presenter?.didTapLogoutButton()
     }
 }
