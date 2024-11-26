@@ -72,4 +72,8 @@ final class ProfileService: ProfileServiceProtocol  {
         self.task = task
         task.resume()
     }
+    func clearProfile() {
+        profile = nil
+        task = nil
+    }
 }
