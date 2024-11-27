@@ -1,7 +1,8 @@
 import Foundation
 
-protocol ProfileServiceProtocol {
+public protocol ProfileServiceProtocol {
     func fetchProfile(completion: @escaping (Result<Profile, Error>) -> Void)
+    var profile: Profile? { get }
 }
 
 enum ProfileServiceError: Error {

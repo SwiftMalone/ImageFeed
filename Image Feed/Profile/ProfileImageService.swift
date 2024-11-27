@@ -1,6 +1,10 @@
 import Foundation
 
-final class ProfileImageService {
+public protocol ProfileImageServiceProtocol {
+    var avatarURL: String? { get }
+}
+
+final class ProfileImageService: ProfileImageServiceProtocol {
     
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     private let tokenStorage = OAuth2TokenStorage()
