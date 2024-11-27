@@ -16,13 +16,16 @@ final class ProfileViewController: UIViewController, ProfileViewProtocol {
             with: UIImage(systemName: "ipad.and.arrow.forward")!,
             target: self,
             action: #selector(Self.didTapLogoutButton)
+            
         )
         button.tintColor = UIColor(named: "YPRed")
+        button.accessibilityIdentifier = "logOutButton"
         return button
     }()
     
     private let userNameLabel: UILabel = {
         let label = UILabel()
+        label.accessibilityIdentifier = "userNameLabel"
         label.font = UIFont.systemFont(ofSize: 23, weight: .bold)
         label.textColor = .white
         label.text = "Екатерина Новикова"
@@ -32,6 +35,7 @@ final class ProfileViewController: UIViewController, ProfileViewProtocol {
     
     private let tagLabel: UILabel = {
         let label = UILabel()
+        label.accessibilityIdentifier = "tagLabel"
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor(named: "YPGray")
         label.text = "@ekaterina_nov"
